@@ -182,7 +182,7 @@ MODULOS_ADMIN = {
     "Consulta de Resultados": ("📊", "Archivo analítico"),
     "Finanzas y Facturación": ("💰", "Panel financiero 80/20"),
     "Generación de Informes": ("📄", "Protocolos Word"),
-    "Auditoría (ISO)":        ("🛡️",  "Audit trail ISO 17025"),
+    "Auditoría":        ("🛡️",  "Audit trail ISO 17025"),
     "Gestión de Usuarios":    ("🔐", "Usuarios y contraseñas"),
     "Mi Perfil":              ("👤", "Mis datos y contraseña"),
 }
@@ -608,7 +608,7 @@ elif modulo == "Órdenes de Trabajo":
                     muestras_ctx.append({'id_manual': m['id_manual'], 'precinto': m['codigo_precinto'], 'analisis': ", ".join(df_a['nombre'].tolist())})
                     total += df_a['precio'].sum()
                 try:
-                    tpl = DocxTemplate("plantilla_informe.docx")
+                    tpl = DocxTemplate("plantilla_saer.docx")
                     tpl.render({'cliente': datos_c['cliente'], 'cuit': datos_c['cuit'], 'contacto': datos_c['contacto'], 'direccion': datos_c['direccion'], 'email': datos_c['email'], 'fecha': f_sel, 'total': f"${total:,.2f}", 'muestras': muestras_ctx})
                     buf = io.BytesIO(); tpl.save(buf)
                     st.success("✅ Documento generado correctamente.")
@@ -778,8 +778,8 @@ elif modulo == "Generación de Informes":
 # ============================================================
 # MÓDULO 9: AUDITORÍA ISO 17025
 # ============================================================
-elif modulo == "Auditoría (ISO)":
-    st.header("🛡️ Auditoría — Audit Trail ISO 17025")
+elif modulo == "Auditoría":
+    st.header("🛡️ Auditoría - Historial de correción de resultados")
     conn     = obtener_conexion()
     df_audit = pd.read_sql_query("SELECT hc.fecha_hora AS \"Fecha / Hora\", hc.usuario_modificador AS \"Modificado por\", m.id_manual AS \"Ref. Muestra\", p.nombre AS \"Análisis\", hc.valor_anterior AS \"Valor Anterior\", hc.valor_nuevo AS \"Valor Nuevo\", hc.motivo AS \"Justificación\" FROM historial_cambios hc JOIN ordenes_trabajo ot ON hc.id_ot = ot.id_ot JOIN muestras m ON ot.id_muestra = m.id_muestra JOIN parametros p ON ot.id_parametro = p.id_parametro ORDER BY hc.id_cambio DESC", conn)
     st.dataframe(df_audit, use_container_width=True, hide_index=True)
